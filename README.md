@@ -114,41 +114,253 @@ A comprehensive, full-stack travel planning application built with Next.js 15, e
   "@auth/prisma-adapter": "^2.7.4",
   "tailwindcss": "^4.0.0"
 }
+📋 Prerequisites
+Required Software
+Node.js: Version 18.17 or later
 
-# Using HTTPS
+Bash
+
+node --version  # Should output v18.17.0 or higher
+Package Manager: npm (included with Node.js), yarn, or pnpm
+
+Bash
+
+npm --version
+Git: For version control
+
+Bash
+
+git --version
+Required Accounts
+GitHub Account - For OAuth authentication
+
+Sign up: https://github.com/signup
+Neon Database Account - For PostgreSQL hosting
+
+Sign up: https://neon.tech (Free tier available)
+System Requirements
+Operating System: Windows 10+, macOS 10.15+, or Linux
+RAM: Minimum 4GB (8GB recommended)
+Storage: At least 500MB free space
+Internet: Required for installation and database
+🛠️ Installation
+Step 1: Clone the Repository
+Bash
+
+# Clone via HTTPS
 git clone https://github.com/YOUR_USERNAME/travel-planner.git
 
-# Or using SSH
+# Or clone via SSH
 git clone git@github.com:YOUR_USERNAME/travel-planner.git
 
-# Navigate to project directory
+# Navigate to directory
 cd travel-planner
+Step 2: Install Dependencies
+Choose your preferred package manager:
 
-# ==================================
+Bash
+
+# Using npm
+npm install
+
+# Using yarn
+yarn install
+
+# Using pnpm
+pnpm install
+
+🔐 Environment Setup
+Step 1: Create .env File
+Bash
+
+# Windows PowerShell
+New-Item -Path .env -ItemType File
+
+# macOS/Linux/Git Bash
+touch .env
+Step 2: Environment Variables Template
+Create .env in the root directory with the following content:
+
+env
+
+# ========================================
 # DATABASE CONFIGURATION
-# ==================================
-# Neon PostgreSQL connection string
-# Format: postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require&connect_timeout=10
-DATABASE_URL="postgresql://neondb_owner:YOUR_PASSWORD@YOUR_HOST.neon.tech/neondb?sslmode=require&connect_timeout=10"
+# ========================================
+# Get this from Neon Console > Connection Details > Prisma
+DATABASE_URL="postgresql://user:password@host.neon.tech/database?sslmode=require&connect_timeout=10"
 
-# ==================================
-# NEXTAUTH CONFIGURATION
-# ==================================
-# Secret key for JWT encryption (generate with: npx auth secret)
-AUTH_SECRET="your-generated-secret-here"
+# ========================================
+# AUTHENTICATION CONFIGURATION
+# ========================================
+# Generate with: npx auth secret
+AUTH_SECRET="your-32-character-random-secret-here"
 
-# Base URL for your application
+# Your app URL (development)
 NEXTAUTH_URL="http://localhost:3000"
 
-# ==================================
+# ========================================
 # GITHUB OAUTH CONFIGURATION
-# ==================================
-# GitHub OAuth App Client ID
-AUTH_GITHUB_ID="your-github-client-id"
+# ========================================
+# Get from GitHub > Settings > Developer Settings > OAuth Apps
+AUTH_GITHUB_ID="your-github-oauth-client-id"
+AUTH_GITHUB_SECRET="your-github-oauth-client-secret"
+Step 3: Generate AUTH_SECRET
+Choose one method:
 
-# GitHub OAuth App Client Secret
-AUTH_GITHUB_SECRET="your-github-client-secret"
+Bash
 
+# Method 1: Using npx (recommended)
+npx auth secret
+
+# Method 2: Using OpenSSL
+openssl rand -base64 32
+
+# Method 3: Using Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# Method 4: Using PowerShell
+-join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | % {[char]$_})
+Copy the output and paste it as the value for AUTH_SECRET in .env.
+
+Environment Variables Explained
+Variable	Required	Description	Example
+DATABASE_URL	Yes	PostgreSQL connection string	postgresql://user:pass@host/db
+AUTH_SECRET	Yes	Secret key for JWT encryption	Random 32+ char string
+NEXTAUTH_URL	Yes	Application base URL	http://localhost:3000
+AUTH_GITHUB_ID	Yes	GitHub OAuth Client ID	Iv1.abc123...
+AUTH_GITHUB_SECRET	Yes	GitHub OAuth Client Secret	ghp_xyz789...
+
+🔑 GitHub OAuth Setup
+Step 1: Create GitHub OAuth Application
+Go to https://github.com/settings/developers
+Click "OAuth Apps" in left sidebar
+Click "New OAuth App"
+Step 2: Configure OAuth App
+Fill in the registration form:
+
+Field	Development Value	Production Value
+Application name	Travel Planner (Dev)	Travel Planner
+Homepage URL	http://localhost:3000	https://yourdomain.com
+Application description	Travel planning application	Travel planning application
+Authorization callback URL	http://localhost:3000/api/auth/callback/github	https://yourdomain.com/api/auth/callback/github
+Important: The callback URL must be exact. No trailing slashes.
+
+Step 3: Get OAuth Credentials
+After creating the app:
+
+Copy the Client ID - starts with Iv1.
+Click "Generate a new client secret"
+Copy the Client Secret immediately (shown only once)
+Step 4: Update .env File
+env
+
+AUTH_GITHUB_ID="Iv1.your-client-id-here"
+AUTH_GITHUB_SECRET="ghp_your-client-secret-here"
+Step 5: Test OAuth Flow
+Start development server:
+
+Bash
+
+npm run dev
+Open http://localhost:3000
+
+Click "Sign in with GitHub"
+
+Authorize the application
+
+You should be redirected back and logged in
+
+Troubleshooting OAuth
+"Redirect URI mismatch" error
+Solution: Ensure callback URL in GitHub matches exactly:
+
+text
+
+http://localhost:3000/api/auth/callback/github
+Check for typos
+No trailing slash
+HTTP (not HTTPS) for local development
+"Invalid client credentials" error
+Solution:
+
+Verify AUTH_GITHUB_ID and AUTH_GITHUB_SECRET in .env
+Check for extra spaces or quotes
+Regenerate client secret if needed
+
+📁 Project Structure
+text
+
+travel-planner/
+│
+├── 📂 app/                                # Next.js 15 App Router
+│   ├── 📂 api/                            # API Routes
+│   │   └── 📂 auth/
+│   │       └── 📂 [...nextauth]/
+│   │           └── route.ts               # NextAuth.js API handler
+│   │
+│   ├── 📂 generated/                      # Auto-generated files
+│   │   └── 📂 prisma/                     # Prisma Client
+│   │       ├── index.d.ts
+│   │       └── index.js
+│   │
+│   ├── 📂 trips/                          # Trip pages (future)
+│   │   ├── page.tsx                       # All trips page
+│   │   └── 📂 [id]/
+│   │       └── page.tsx                   # Single trip page
+│   │
+│   ├── layout.tsx                         # Root layout with Navbar
+│   ├── page.tsx                           # Home page
+│   ├── globals.css                        # Global styles + Tailwind
+│   ├── loading.tsx                        # Loading UI
+│   ├── error.tsx                          # Error UI
+│   └── not-found.tsx                      # 404 page
+│
+├── 📂 components/                         # Reusable React components
+│   ├── Navbar.tsx                         # Navigation component
+│   ├── TripCard.tsx                       # Trip display card
+│   └── LocationCard.tsx                   # Location display card
+│
+├── 📂 lib/                                # Utility libraries
+│   ├── prisma.ts                          # Prisma client singleton
+│   ├── utils.ts                           # Helper functions
+│   └── auth.ts                            # Auth utilities
+│
+├── 📂 prisma/                             # Prisma ORM
+│   ├── schema.prisma                      # Database schema
+│   └── migrations/                        # Migration files (if using)
+│
+├── 📂 public/                             # Static assets
+│   ├── images/                            # Image files
+│   ├── favicon.ico                        # App icon
+│   └── robots.txt                         # SEO
+│
+├── 📂 types/                              # TypeScript type definitions
+│   └── index.ts                           # Shared types
+│
+├── 📄 auth.ts                             # NextAuth.js configuration
+├── 📄 middleware.ts                       # Next.js middleware (optional)
+│
+├── 📄 .env                                # Environment variables (gitignored)
+├── 📄 .env.example                        # Environment template
+├── 📄 .gitignore                          # Git ignore rules
+├── 📄 .eslintrc.json                      # ESLint configuration
+├── 📄 .prettierrc                         # Prettier configuration
+│
+├── 📄 next.config.ts                      # Next.js configuration
+├── 📄 tailwind.config.ts                  # Tailwind CSS config
+├── 📄 postcss.config.mjs                  # PostCSS config
+├── 📄 tsconfig.json                       # TypeScript config
+│
+├── 📄 package.json                        # Dependencies & scripts
+├── 📄 package-lock.json                   # Lock file
+│
+└── 📄 README.md                           # This file
+
+🗃️ Database Schema
+Complete Prisma Schema
+prisma
+
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -161,7 +373,7 @@ datasource db {
 }
 
 // ==========================================
-// AUTHENTICATION MODELS (NextAuth.js)
+// NEXTAUTH.JS REQUIRED MODELS
 // ==========================================
 
 model Account {
@@ -181,6 +393,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -189,6 +402,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -202,6 +417,8 @@ model User {
   trips         Trip[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([email])
 }
 
 model VerificationToken {
@@ -231,6 +448,7 @@ model Trip {
 
   @@index([userId])
   @@index([startDate])
+  @@index([createdAt])
 }
 
 model Location {
@@ -250,52 +468,128 @@ model Location {
   @@index([tripId])
   @@index([date])
 }
+Entity Relationship Diagram
+text
 
-┌─────────────────┐
-│      User       │
-├─────────────────┤
-│ id (PK)         │
-│ name            │
-│ email (unique)  │
-│ emailVerified   │
-│ image           │
-│ createdAt       │
-│ updatedAt       │
-└────────┬────────┘
-         │
-         │ 1:N
-         │
-┌────────▼────────┐       ┌─────────────────┐
-│      Trip       │       │    Account      │
-├─────────────────┤       ├─────────────────┤
-│ id (PK)         │◄──┐   │ id (PK)         │
-│ name            │   │   │ userId (FK)     │
-│ description     │   │   │ provider        │
-│ startDate       │   │   │ type            │
-│ endDate         │   │   │ access_token    │
-│ imageUrl        │   │   └─────────────────┘
-│ userId (FK)     │   │
-│ createdAt       │   │   ┌─────────────────┐
-│ updatedAt       │   │   │    Session      │
-└────────┬────────┘   │   ├─────────────────┤
-         │            └───┤ id (PK)         │
-         │ 1:N            │ sessionToken    │
-         │                │ userId (FK)     │
-┌────────▼────────┐       │ expires         │
-│    Location     │       └─────────────────┘
-├─────────────────┤
-│ id (PK)         │
-│ name            │
-│ description     │
-│ address         │
-│ latitude        │
-│ longitude       │
-│ date            │
-│ imageUrl        │
-│ tripId (FK)     │
-│ createdAt       │
-│ updatedAt       │
-└─────────────────┘
+┌─────────────────────┐
+│        User         │
+├─────────────────────┤
+│ id (PK)             │◄──┐
+│ name                │   │
+│ email (unique)      │   │
+│ emailVerified       │   │
+│ image               │   │
+│ createdAt           │   │
+│ updatedAt           │   │
+└──────┬──────────────┘   │
+       │                  │
+       │ 1:N              │
+       │                  │
+┌──────▼──────────────┐   │
+│       Trip          │   │
+├─────────────────────┤   │
+│ id (PK)             │   │
+│ name                │   │
+│ description         │   │
+│ startDate           │   │
+│ endDate             │   │
+│ imageUrl            │   │
+│ userId (FK)         ├───┘
+│ createdAt           │
+│ updatedAt           │
+└──────┬──────────────┘
+       │
+       │ 1:N
+       │
+┌──────▼──────────────┐       ┌──────────────────┐
+│     Location        │       │     Account      │
+├─────────────────────┤       ├──────────────────┤
+│ id (PK)             │       │ id (PK)          │
+│ name                │       │ userId (FK)      │
+│ description         │       │ provider         │
+│ address             │       │ providerAccountId│
+│ latitude            │       │ access_token     │
+│ longitude           │       │ refresh_token    │
+│ date                │       └──────────────────┘
+│ imageUrl            │
+│ tripId (FK)         │       ┌──────────────────┐
+│ createdAt           │       │     Session      │
+│ updatedAt           │       ├──────────────────┤
+└─────────────────────┘       │ id (PK)          │
+                              │ sessionToken     │
+                              │ userId (FK)      │
+                              │ expires          │
+                              └──────────────────┘
+Relationships
+Parent Model	Child Model	Relationship	Delete Behavior
+User	Account	One-to-Many	Cascade
+User	Session	One-to-Many	Cascade
+User	Trip	One-to-Many	Cascade
+Trip	Location	One-to-Many	Cascade
+Field Types Reference
+Prisma Type	PostgreSQL Type	TypeScript Type	Description
+String	TEXT	string	Variable text
+String?	TEXT NULL	string | null	Optional text
+String @db.Text	TEXT	string	Long text
+Int	INTEGER	number	32-bit integer
+Float	DOUBLE PRECISION	number	Decimal number
+Boolean	BOOLEAN	boolean	true/false
+DateTime	TIMESTAMP(3)	Date	Date with time
+@id	PRIMARY KEY	-	Primary key
+@unique	UNIQUE	-	Unique constraint
+@default(cuid())	-	-	Auto-generate ID
+@default(now())	DEFAULT NOW()	-	Current timestamp
+@updatedAt	-	-	Auto-update on change
+Database Migrations
+Create Migration
+Bash
+
+npx prisma migrate dev --name init
+Apply Migrations (Production)
+Bash
+
+npx prisma migrate deploy
+Reset Database
+Bash
+
+# WARNING: Deletes all data!
+npx prisma migrate reset
+📡 API Documentation
+Authentication Routes
+POST /api/auth/signin
+Initiate GitHub OAuth sign-in flow.
+
+Usage:
+
+TypeScript
+
+import { signIn } from "@/auth";
+
+// In Server Component
+<form action={async () => {
+  "use server";
+  await signIn("github");
+}}>
+  <button type="submit">Sign in</button>
+</form>
+
+// In Client Component
+import { signIn } from "next-auth/react";
+
+<button onClick={() => signIn("github")}>
+  Sign in with GitHub
+</button>
+Flow:
+
+User clicks sign in
+Redirects to GitHub OAuth
+User authorizes
+Redirects to /api/auth/callback/github
+Session created
+Redirects to homepage
+
+
+
 
 
 
