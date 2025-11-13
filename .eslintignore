@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Generated files
+app/generated/
+prisma/generated/
+**/*.generated.*
+
+# Config files
+*.config.js
+*.config.mjs
+
+# Runtime files
+***/runtime/*.js
+***/runtime/*.mjs
