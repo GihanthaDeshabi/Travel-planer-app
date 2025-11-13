@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint --ignore-path .eslintignore",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -46,5 +47,8 @@
   },
   "overrides": {
     "effect": "^3.18.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

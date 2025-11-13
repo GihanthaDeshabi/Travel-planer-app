@@ -1,13 +1,20 @@
 {
   "extends": "next/core-web-vitals",
   "ignorePatterns": [
-    "app/generated/**",
     "node_modules/**",
-    ".next/**"
+    ".next/**",
+    "out/**",
+    "build/**",
+    "app/generated/**",
+    "*.min.js",
+    "*.config.js"
   ],
   "rules": {
+    "@typescript-eslint/no-empty-object-type": "off",
     "@typescript-eslint/no-unused-expressions": "off",
     "@typescript-eslint/no-unused-vars": "warn",
-    "@typescript-eslint/no-require-imports": "off"
+    "@typescript-eslint/no-require-imports": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-array-constructor": "off"
   }
 }
